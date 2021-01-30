@@ -7,7 +7,7 @@ const productSchema = new Schema(
                type: String,
                required: true,
           },
-          image: { type: String, required: true },
+          image: { type: String, required: true, default:"https://uploads-ssl.webflow.com/5b51027ab42492b481d39425/5ba289e09f24ea6d65fc8a70_noimage.jpg" },
           images: [String],
           seller: {
                type: Schema.Types.ObjectId,
