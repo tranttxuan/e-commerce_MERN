@@ -14,7 +14,10 @@ router.get("/", (req, res, next) => {
 router.get("/:idProd", (req, res, next) => {
      Product.findById(req.params.idProd)
           .then(data => res.status(200).json(data))
-          .catch(error => res.status(500).json({ message: "Failure to find this product's id in database" }))
+          .catch(error =>
+               res.status(500).json({
+                    message: "Failure to find this product's id in database"
+               }))
 })
 
 //Add a new product

@@ -31,7 +31,7 @@ router.post("/login", (req, res, next) => {
 
 //SIGNUP
 router.post("/signup", (req, res, next) => {
-  const { email, password, name } = req.body;
+  const { name, email, password } = req.body;
   console.log(req.body)
 
   if (!email || !password) {
@@ -41,7 +41,7 @@ router.post("/signup", (req, res, next) => {
 
   const regex = /(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{6,}/;
   if (!regex.test((password))) {
-    res.status(200).json({ message: 'Please make your password at least 6 characters, that contains at least one uppercase, one lowercase and one number digit in it, for security purposes.' });
+    res.status(400).json({ message: 'Please make your password at least 6 characters, that contains at least one uppercase, one lowercase and one number digit in it, for security purposes.' });
     return;
   }
 
