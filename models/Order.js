@@ -10,12 +10,12 @@ const orderSchema = new Schema({
      seller: {
           type: Schema.Types.ObjectId,
           ref: 'User',
-          required: true,
+          // required: true,
      },
      orderItems: [
           {
                name: { type: String, required: true },
-               qty: { type: Number, required: true },
+               quantity: { type: Number, required: true },
                image: { type: String, required: true },
                price: { type: String, required: true },
                product: {
