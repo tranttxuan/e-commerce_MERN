@@ -2,6 +2,7 @@ const express = require("express");
 const router = express.Router();
 const bcrypt = require("bcrypt");
 const User = require("../models/User");
+const requireAuth = require("../middlewares/requireAuth");
 // const requireAuth = require("../middlewares/requireAuth");
 // const upload = require("../configs/cloundinary-setup");
 
@@ -94,5 +95,29 @@ router.delete("/logout", (req, res, next) => {
     res.status(200).json({ message: "no session" });
   }
 });
+
+//PROFILE
+router.get("/:id", requireAuth, (req, res, next) => {
+  User.findById(req.params.id)
+    .select("-password")
+    .then(user => res.status(200).json(user))
+    .catch(err => res.status(400).json({ message: "User not found" }))
+})
+
+router.patch("/profile", requireAuth, (req, res, next) => {
+  if (req.body.password) {
+    const regex = /(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{6,}/;
+    if (!regex.test((req.body.password))) {
+      res.status(400).json({ message: 'Please make your password at least 6 characters, that contains at least one uppercase, one lowercase and one number digit in it, for security purposes.' });
+      return;
+    }
+
+    req.body.password = bcrypt.hashSync(req.body.password, salt)
+  }
+  User.findByIdAndUpdate(req.session.currentUser, req.body, { new: true })
+    .then(updatedUser => res.status(200).json(updatedUser))
+    .catch(err => res.status(400).json({ message: "Failure to update profile" }))
+
+})
 
 module.exports = router;
