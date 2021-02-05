@@ -47,4 +47,11 @@ app.get('/api/config/paypal', (req, res) =>{
      res.send(process.env.PAYPAL_CLIENT_ID || 'sb')
 })
 
+if (process.env.NODE_ENV === "production") {
+     app.use("*", (req, res, next) => {
+     // If no routes match, send them the React HTML.
+     res.sendFile(__dirname + "/public/index.html");
+     });
+     }
+
 module.exports = app;
