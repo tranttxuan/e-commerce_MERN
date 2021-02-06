@@ -6,6 +6,7 @@ const router = express.Router();
 //Get all products
 router.get("/", (req, res, next) => {
      //query parameters from frontend
+     console.log("go here")
      const name = req.query.name || '';
      const category = req.query.category || '';
      const min = req.query.min && Number(req.query.min) !== 0 ? Number(req.query.min) : 0;
@@ -25,12 +26,14 @@ router.get("/", (req, res, next) => {
                     : req.query.order === "newest" ? { _id: -1 }
                          : { rating: -1 }
           : { _id: -1 }
+     console.log("check>>>>", priceFilter)
 
      Product.find({ ...categoryFilter, ...priceFilter, ...ratingFilter, ...nameFilter, ...ratingFilter })
           .sort(order)
           .then(data => {
-               console.log({ ...categoryFilter, ...priceFilter, ...ratingFilter, ...nameFilter, ...ratingFilter })
-               res.status(200).json(data)})
+               console.log(data)
+               res.status(200).json(data)
+          })
           .catch(error => res.status(500).json({ message: error }))
 });
 
