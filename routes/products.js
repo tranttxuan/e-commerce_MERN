@@ -61,8 +61,12 @@ router.get("/:idProd", (req, res, next) => {
 
 
 //Add a new product
-router.post("/", (req, res, next) => {
+router.post("/create", (req, res, next) => {
      // console.log(req.body)
+     //if  req.body.seller === req.session.current....
+     if (req.body.seller !== req.session.currentUser) {
+          return res.status(400).json({ message: "Unauthorized" })
+     }
      Product.create(req.body)
           .then(data => res.status(200).json(data))
           .catch(error => res.status(500).json({ message: error }))
