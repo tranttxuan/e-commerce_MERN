@@ -39,10 +39,11 @@ app.use(
 );
 
 //Routes
-app.use('/api/users', require('./routes/users'));
+
 app.use('/api/auth', require('./routes/auth'));
 app.use('/api/products', require('./routes/products'));
 app.use('/api/orders', require('./routes/orders'));
+app.use('/api/upload', require('./routes/upload'));
 // app.get('/api/config/paypal', (req, res) =>{
 //      res.send(process.env.PAYPAL_CLIENT_ID || 'sb')
 // })
