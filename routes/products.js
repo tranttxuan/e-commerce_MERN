@@ -1,4 +1,6 @@
 const express = require('express');
+const requireAuth = require('../middlewares/requireAuth');
+const requireSeller = require('../middlewares/requireSeller');
 const Product = require('../models/Product');
 const router = express.Router();
 
@@ -12,6 +14,7 @@ router.get("/", (req, res, next) => {
      const min = req.query.min && Number(req.query.min) !== 0 ? Number(req.query.min) : 0;
      const max = req.query.max && Number(req.query.max) !== 0 ? Number(req.query.max) : 0;
      const rating = req.query.rating && Number(req.query.rating) !== 0 ? Number(req.query.rating) : 0;
+     const seller = req.query.seller || '';
 
      //create query to search
      const categoryFilter = category ? { category } : {};
@@ -26,12 +29,13 @@ router.get("/", (req, res, next) => {
                     : req.query.order === "newest" ? { _id: -1 }
                          : { rating: -1 }
           : { _id: -1 }
-     console.log("check>>>>", priceFilter)
 
-     Product.find({ ...categoryFilter, ...priceFilter, ...ratingFilter, ...nameFilter, ...ratingFilter })
+     const sellerFilter = seller ? { seller } : {};
+     // console.log("check>>>>", sellerFilter)
+     Product.find({ ...categoryFilter, ...priceFilter, ...ratingFilter, ...nameFilter, ...ratingFilter, ...sellerFilter })
           .sort(order)
           .then(data => {
-               console.log(data)
+               // console.log(data)
                res.status(200).json(data)
           })
           .catch(error => res.status(500).json({ message: error }))
@@ -47,8 +51,20 @@ router.get("/categories", (req, res, next) => {
                }))
 });
 
+
+//Get list of products by seller
+router.get("/seller", requireAuth, (req, res) => {
+     Product.find({ seller: req.session.currentUser })
+          .sort({ _id: -1 })
+          .then(data => res.status(200).json(data))
+          .catch(error =>
+               res.status(500).json({
+                    message: "Failure to find id of this seller"
+               }))
+})
+
 //Get a specific product
-router.get("/:idProd", (req, res, next) => {
+router.get("/:idProd", requireSeller, (req, res, next) => {
      Product.findById(req.params.idProd)
           .then(data => res.status(200).json(data))
           .catch(error =>
@@ -61,16 +77,21 @@ router.get("/:idProd", (req, res, next) => {
 
 
 //Add a new product
-router.post("/create", (req, res, next) => {
-     // console.log(req.body)
-     //if  req.body.seller === req.session.current....
+router.post("/create", requireSeller, (req, res, next) => {
      if (req.body.seller !== req.session.currentUser) {
           return res.status(400).json({ message: "Unauthorized" })
      }
      Product.create(req.body)
           .then(data => res.status(200).json(data))
-          .catch(error => res.status(500).json({ message: error }))
+          .catch(error => {
+               console.log(error)
+               res.status(500).json({ message: error })})
 })
 
-
+//Delete a specific product
+router.delete("/delete/:id", requireSeller, (req, res, next) => {
+     Product.findByIdAndDelete(req.params.id)
+          .then(data => res.status(200).json(data))
+          .catch(error => res.status(500).json({ message: error }))
+})
 module.exports = router;

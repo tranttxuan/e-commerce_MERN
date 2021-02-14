@@ -22,7 +22,7 @@ router.post("/login", (req, res, next) => {
         return res.status(400).json({ message: "Invalid password. Try again" });
       }
 
-      req.session.currentUser = user._id
+      req.session.currentUser = user._id;
       req.session.currentUser_isAdmin = user.isAdmin;
       req.session.currentUser_isSeller = user.isSeller;
       res.redirect("/api/auth/isLoggedIn");
@@ -33,7 +33,7 @@ router.post("/login", (req, res, next) => {
 //SIGNUP
 router.post("/signup", (req, res, next) => {
   const { name, email, password } = req.body;
-  console.log(req.body)
+  // console.log(req.body)
 
   if (!email || !password) {
     res.status(400).json({ message: 'Provide username and password' });
@@ -72,7 +72,7 @@ router.post("/signup", (req, res, next) => {
 
 //CHECK is Logged in
 router.get("/isLoggedIn", (req, res, next) => {
-  console.log(req.session.currentUser, "i am here")
+  // console.log(req.session.currentUser, "i am here")
   if (!req.session.currentUser)
     return res.status(401).json({ message: "Unauthorized" });
 
