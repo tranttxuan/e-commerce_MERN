@@ -8,7 +8,6 @@ const router = express.Router();
 //Get all products
 router.get("/", (req, res, next) => {
      //query parameters from frontend
-     console.log("go here")
      const name = req.query.name || '';
      const category = req.query.category || '';
      const min = req.query.min && Number(req.query.min) !== 0 ? Number(req.query.min) : 0;
@@ -64,7 +63,7 @@ router.get("/seller", requireAuth, (req, res) => {
 })
 
 //Get a specific product
-router.get("/:idProd", requireSeller, (req, res, next) => {
+router.get("/:idProd", (req, res, next) => {
      Product.findById(req.params.idProd)
           .then(data => res.status(200).json(data))
           .catch(error =>
@@ -78,6 +77,7 @@ router.get("/:idProd", requireSeller, (req, res, next) => {
 
 //Add a new product
 router.post("/create", requireSeller, (req, res, next) => {
+     // console.log(req.session.currentUser,req.body.seller)
      if (req.body.seller !== req.session.currentUser) {
           return res.status(400).json({ message: "Unauthorized" })
      }
@@ -85,7 +85,18 @@ router.post("/create", requireSeller, (req, res, next) => {
           .then(data => res.status(200).json(data))
           .catch(error => {
                console.log(error)
-               res.status(500).json({ message: error })})
+               res.status(500).json({ message: error })
+          })
+})
+
+//update
+router.patch("/edit/:id", requireSeller, (req, res, next) => {
+     if (req.body.seller !== req.session.currentUser) {
+          return res.status(400).json({ message: "Unauthorized" })
+     }
+     Product.findByIdAndUpdate(req.params.id, req.body)
+          .then(data => res.status(200).json(data))
+          .catch(error => res.status(500).json({ message: error }))
 })
 
 //Delete a specific product
