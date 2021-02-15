@@ -17,7 +17,10 @@ router.get("/mine", requireAuth, (req, res, next) => {
 
 //get order list that seller received
 router.get("/seller", requireSeller, (req, res, next) => {
-
+    Order.find({ "orderItems.seller": req.session.currentUser })
+        .populate("user", "name")
+        .then(data => res.status(200).json(data))
+        .catch(err => res.status(400).json({ message: err }))
 })
 
 //get details of a specific order
@@ -30,13 +33,16 @@ router.get("/:id", requireAuth, (req, res, next) => {
 //create a new order
 router.post("/", requireAuth, (req, res, next) => {
     req.body.user = req.session.currentUser;
-
+console.log(req.body)
     if (req.body.orderItems.length === 0) {
         return res.status(400).json({ message: 'Cart is empty' });
     }
     Order.create(req.body)
         .then(data => res.status(200).json(data))
-        .catch(err => { res.status(400).json({ message: err }) })
+        .catch(err => {
+            console.log(err)
+            
+            res.status(400).json({ message: err }) })
 })
 
 //payment
@@ -58,6 +64,12 @@ router.post("/charge/stripe", requireAuth, (req, res, next) => {
         })
 })
 
+//delete command
+router.delete("/:idOrder", requireSeller, (req, res, next) => {
+    Order.findByIdAndDelete(req.params.idOrder)
+        .then(result => res.status(200).json(result))
+        .catch(err => res.status(400).json({ message: "Failure to delete this order" }))
+})
 
 router.patch("/:id/pay", requireAuth, (req, res, next) => {
     Order.findById(req.params.id)

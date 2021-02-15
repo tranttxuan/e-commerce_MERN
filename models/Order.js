@@ -7,11 +7,6 @@ const orderSchema = new Schema({
           ref: 'User',
           required: true
      },
-     seller: {
-          type: Schema.Types.ObjectId,
-          ref: 'User',
-          // required: true,
-     },
      orderItems: [
           {
                name: { type: String, required: true },
@@ -21,6 +16,11 @@ const orderSchema = new Schema({
                product: {
                     type: Schema.Types.ObjectId,
                     ref: 'Product',
+                    required: true,
+               },
+               seller:{
+                    type: Schema.Types.ObjectId,
+                    ref: 'User',
                     required: true,
                },
           },
