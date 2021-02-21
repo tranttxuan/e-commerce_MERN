@@ -3,8 +3,7 @@ const router = express.Router();
 const bcrypt = require("bcrypt");
 const User = require("../models/User");
 const requireAuth = require("../middlewares/requireAuth");
-// const requireAuth = require("../middlewares/requireAuth");
-// const upload = require("../configs/cloundinary-setup");
+const requireAdmin = require("../middlewares/requireAdmin");
 
 const salt = 10;
 
@@ -96,6 +95,21 @@ router.delete("/logout", (req, res, next) => {
   }
 });
 
+
+//Admin
+//All user
+router.get("/", requireAdmin, (req, res, next) => {
+  console.log("check")
+  User.find({})
+    .then(users => res.status(200).json(users))
+    .catch(err => res.status(400).json({ message: "Failure to fetching data" }))
+})
+router.patch("/edit/:id", requireAdmin, (req, res, next) => {
+  console.log(req.body, req.params.id);
+  User.findByIdAndUpdate(req.params.id, req.body, { new: true })
+    .then(updatedUser => res.status(200).json(updatedUser))
+    .catch(err => res.status(400).json({ message: "Failure to update profile" }))
+})
 //PROFILE
 router.get("/:id", requireAuth, (req, res, next) => {
   User.findById(req.params.id)

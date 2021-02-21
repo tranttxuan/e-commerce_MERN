@@ -1,9 +1,12 @@
 const express = require('express');
 const requireAuth = require('../middlewares/requireAuth');
 const Order = require('../models/Order');
+const User = require("../models/User");
 const router = express.Router();
 const Stripe = require('stripe');
 const requireSeller = require('../middlewares/requireSeller');
+const requireAdmin = require('../middlewares/requireAdmin');
+const Product = require('../models/Product');
 
 const stripe = new Stripe(process.env.STRIPE_KEY)
 
@@ -23,6 +26,55 @@ router.get("/seller", requireSeller, (req, res, next) => {
         .catch(err => res.status(400).json({ message: err }))
 })
 
+//get summary
+router.get("/summary", requireAdmin, requireAdmin, async (req, res, next) => {
+    try {
+     
+        const orders = await Order.aggregate([
+            {
+                $group: {
+                    _id: null,
+                    numOrders: { $sum: 1 },
+                    totalSales: { $sum: '$totalPrice' }
+                }
+            }
+        ]);
+
+        const users = await User.aggregate([
+            {
+                $group: {
+                    _id: null,
+                    numUsers: { $sum: 1 }
+                }
+            }
+        ])
+
+        const dailyOrders = await Order.aggregate([
+            {
+                $group: {
+                    _id: { $dateToString: { format: '%Y-%m-%d', date: '$createdAt' } },
+                    orders: { $sum: 1 },
+                    sales: { $sum: '$totalPrice' }
+                }
+            }
+        ])
+
+        const productCategories = await Product.aggregate([
+            {
+                $group: {
+                    _id: '$category',
+                    count: { $sum: 1 }
+                }
+            }
+        ])
+
+        res.status(200).json({ orders, users, dailyOrders, productCategories })
+    } catch (err) {
+        console.log(err)
+        res.status(400).json({ message: err })
+    }
+})
+
 //get details of a specific order
 router.get("/:id", requireAuth, (req, res, next) => {
     Order.findById(req.params.id)
@@ -30,10 +82,11 @@ router.get("/:id", requireAuth, (req, res, next) => {
         .catch(err => res.status(400).json({ message: "Order not found" }))
 })
 
+
 //create a new order
 router.post("/", requireAuth, (req, res, next) => {
     req.body.user = req.session.currentUser;
-console.log(req.body)
+    console.log(req.body)
     if (req.body.orderItems.length === 0) {
         return res.status(400).json({ message: 'Cart is empty' });
     }
@@ -41,8 +94,9 @@ console.log(req.body)
         .then(data => res.status(200).json(data))
         .catch(err => {
             console.log(err)
-            
-            res.status(400).json({ message: err }) })
+
+            res.status(400).json({ message: err })
+        })
 })
 
 //payment

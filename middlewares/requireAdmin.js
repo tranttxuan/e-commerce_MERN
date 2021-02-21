@@ -1,4 +1,4 @@
-module.exports = function requiteAdmin(req, res, next) {
+module.exports = function requireAdmin(req, res, next) {
      if (req.session.currentUser && req.session.currentUser_isAdmin) {
           next();
      } else {
