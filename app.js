@@ -79,6 +79,7 @@ io.on('connection', (socket) => {
      });
 
      socket.on('onLogin', (user) => {
+          console.log(user)
           const updatedUser = {
                ...user,
                online: true,
@@ -92,8 +93,8 @@ io.on('connection', (socket) => {
           } else {
                users.push(updatedUser);
           }
-          console.log('Online', user.name);
-          console.log(users);
+     //      console.log('Online', user.name);
+
           const admin = users.find((x) => x.isAdmin && x.online);
           if (admin) {
                io.to(admin.socketId).emit('updateUser', updatedUser);
@@ -103,14 +104,9 @@ io.on('connection', (socket) => {
           }
      });
 
-     socket.on('onUserSelected', (user) => {
-          const admin = users.find((x) => x.isAdmin && x.online);
-          if (admin) {
-               const existUser = users.find((x) => x._id === user._id);
-               io.to(admin.socketId).emit('selectUser', existUser);
-          }
-     });
+     
      socket.on('onMessage', (message) => {
+          console.log(message)
           if (message.isAdmin) {
                const user = users.find((x) => x._id === message._id && x.online);
                if (user) {
