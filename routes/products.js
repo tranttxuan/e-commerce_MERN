@@ -8,6 +8,7 @@ const router = express.Router();
 //Get all products
 router.get("/", (req, res, next) => {
      //query parameters from frontend
+     console.log(req.query)
      const name = req.query.name || '';
      const category = req.query.category || '';
      const min = req.query.min && Number(req.query.min) !== 0 ? Number(req.query.min) : 0;
